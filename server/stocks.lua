@@ -172,7 +172,7 @@ QBCore.Functions.CreateCallback('osm-stockmarket:register', function(source, cb,
   if name=='' or phone=='' or email=='' or pw=='' then cb({ok=false,msg='Eksik bilgi'}); return end
   dbQ('SELECT 1 FROM exchange_accounts WHERE citizenid=?', {cid}, function(r)
     if r[1] then cb({ok=false,msg='Hesap zaten var'}); return end
-    dbQ('INSERT INTO exchange_accounts (citizenid,display_name,phone,email,password_hash) VALUES (?,?,?,?,?)', {cid,name,phone,email,tostring(hashPassword(pw))}, function()
+    dbQ('INSERT INTO exchange_accounts (citizenid,display_name,name,phone,email,password_hash) VALUES (?,?,?,?,?,?)', {cid,name,name,phone,email,tostring(hashPassword(pw))}, function()
       dbQ('INSERT IGNORE INTO exchange_settings (citizenid) VALUES (?)', {cid})
       ensureWallet(cid, function() Sessions[source]=cid; cb({ok=true}) end)
     end)
@@ -547,4 +547,3 @@ QBCore.Functions.CreateCallback('chat:list', function(src, cb)
   local rows = MySQL.query.await('SELECT ec.message, ec.created_at, ea.name FROM exchange_chat ec LEFT JOIN exchange_accounts ea ON ea.id=ec.user_id ORDER BY ec.id DESC LIMIT 100', {}) or {}
   cb(rows)
 end)
-

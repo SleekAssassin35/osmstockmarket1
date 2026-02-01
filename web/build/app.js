@@ -320,7 +320,6 @@ window.addEventListener('message', (event)=>{
     renderStocks(); updateMarketSummary(); startUpdateTimer(); refreshBalance(); refreshAggPnl();
   } else if (event.data.action === 'updateStocks') {
     if (!isInputActive){ stocks = event.data.data; renderStocks(); updateMarketSummary(); }
-  } else if (event.data.action === 'setVisibleStockMarket') {
   } else if (event.data.action === 'openAdmin') {
     const root = document.getElementById('root');
     if(root){ root.style.display='block'; root.setAttribute('tabindex','-1'); root.focus(); }
@@ -332,11 +331,19 @@ window.addEventListener('message', (event)=>{
     if(typeof showNotification==='function') showNotification(event.data.text || 'Bilgi', event.data.level || 'success');
   } else if (event.data.action === 'chat:receive') {
     if (typeof appendChat==='function') appendChat(event.data.data);
-  }
-
-    const root = document.getElementById('root'); root.style.display = event.data.data ? 'block':'none';
-    if (event.data.data) { root.setAttribute('tabindex','-1'); root.focus(); startUpdateTimer(); }
-    else { if (updateTimer){ clearInterval(updateTimer); updateTimer=null; } }
+  } else if (event.data.action === 'setVisibleStockMarket') {
+    const root = document.getElementById('root');
+    if (root) {
+      const visible = !!event.data.data;
+      root.style.display = visible ? 'block' : 'none';
+      if (visible) {
+        root.setAttribute('tabindex','-1');
+        if (!isInputActive) { root.focus(); }
+        startUpdateTimer();
+      } else {
+        if (updateTimer){ clearInterval(updateTimer); updateTimer=null; }
+      }
+    }
   }
 );
 
