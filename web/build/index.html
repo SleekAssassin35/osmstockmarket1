@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OSM Stock Market</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="root" tabindex="-1">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="title"><span class="dot"></span> OSM Stock Market</div>
+        <div class="header-actions">
+          <div class="balance">Bakiyem: <strong id="walletBalance">$ 0,00</strong></div>
+          <div class="pnl">Net PnL: <strong id="aggPnl" class="pnl-val">$ 0,00</strong></div>
+          <button class="ghost" id="btn-admin" style="display:none">⚙</button>
+          <button class="ghost" id="btn-close" title="Kapat (Esc)">✕</button>
+        </div>
+      </div>
+      <div class="panel-content">
+
+        <!-- Auth Bar -->
+        <div id="auth-bar" class="auth-bar">
+          <div id="auth-guest">
+            <button id="btn-open-register" class="btn">Kayıt Ol</button>
+            <button id="btn-open-login" class="btn">Giriş Yap</button>
+          </div>
+          <div id="auth-user" style="display:none">
+            <span id="auth-user-name">Hesap bağlı</span>
+            <button id="btn-logout" class="btn">Çıkış</button>
+          </div>
+        </div>
+
+        <!-- Market Summary -->
+        <section class="market-summary" id="market-summary">
+          <div class="summary-item"><span>Piyasa Hacmi</span><span id="totalVolume">0</span></div>
+          <div class="summary-item" data-tooltip="İşlem komisyonları">
+            <span>Komisyonlar</span>
+            <span id="feesInfo">Alıcı %0.10 | Satıcı %0.20</span>
+          </div>
+          <div class="summary-item">
+            <span>En Çok Kazananlar</span>
+            <button id="btn-topgainers" class="btn">Göster</button>
+          </div>
+          <div class="summary-item">
+            <span>Sohbet</span>
+            <button id="btn-chat" class="btn">Aç</button>
+          </div>
+        </section>
+
+        <!-- Tabs -->
+        <div id="tabs" class="tabs" style="display:none">
+          <button data-tab="market">Piyasa</button>
+          <button data-tab="portfolio">Portföy</button>
+          <button data-tab="history">İşlem Geçmişim</button>
+          <button data-tab="matrix">Matriks Data</button>
+          <button data-tab="account">Hesabım</button>
+          <button data-tab="support">Destek</button>
+          <button id="btn-refresh" class="ghost">Yenile</button>
+        </div>
+
+        <!-- Tab panes -->
+        <div id="tab-market" class="tab active">
+          <div id="stocks-list" class="stocks-grid"></div>
+        </div>
+        <div id="tab-portfolio" class="tab">
+          <div id="portfolio"></div>
+        </div>
+        <div id="tab-history" class="tab">
+          <div id="history"></div>
+        </div>
+        <div id="tab-matrix" class="tab">
+          <div id="matrix"></div>
+        </div>
+        <div id="tab-account" class="tab">
+          <div class="card">
+            <h3>Cüzdan</h3>
+            <div class="row">
+              <input id="dep-amount" type="number" placeholder="Yatırılacak tutar" />
+              <button id="btn-deposit" class="btn btn-primary">Yatır</button>
+            </div>
+            <div class="row">
+              <input id="wd-amount" type="number" placeholder="Çekilecek tutar" />
+              <button id="btn-withdraw" class="btn btn-secondary">Çek</button>
+            </div>
+            <small>Yatırımlarda oblivion kasasına +%20 yazılır. Çekimde %2 vergi devlet kasasına gider.</small>
+          </div>
+          <div class="card">
+            <h3>Şifre Değişikliği</h3>
+            <input id="pwd-old" type="password" placeholder="Mevcut kullanıcı şifresi" />
+            <input id="pwd-new" type="password" placeholder="Yeni şifre" />
+            <button id="btn-changepw" class="btn">Değiştir</button>
+          </div>
+        </div>
+
+        <div id="tab-support" class="tab">
+          <div class="card">
+            <h3>Destek Taleplerim</h3>
+            <div id="support-myreqs"></div>
+            <button id="btn-new-ticket" class="btn btn-primary">Yeni Talep</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel -->
+  <div id="admin-panel" class="panel" style="display:none">
+    <div class="panel-header">
+      <div class="title"><span class="dot"></span> Admin Panel</div>
+      <div class="header-actions">
+        <div class="balance">Oblivion Kasa: <strong id="admin-oblivion-balance">$ 0,00</strong></div>
+        <button class="ghost" id="btn-admin-close">✕</button>
+      </div>
+    </div>
+    <div class="panel-content">
+      <div class="tabs">
+        <button data-admintab="users">Kullanıcılar</button>
+        <button data-admintab="stocks">Hisseler</button>
+        <button data-admintab="company">Yeni Şirket</button>
+        <button data-admintab="requests">Talepler</button>
+        <button data-admintab="finance">Maliye</button>
+      </div>
+      <div id="admin-users" class="tab active"><div id="users-list"></div></div>
+      <div id="admin-stocks" class="tab"><div id="admin-stocks-list"></div></div>
+      <div id="admin-company" class="tab"><input id="new-symbol" placeholder="Sembol" /><input id="new-name" placeholder="Ad" /><input id="new-price" type="number" /><button id="btn-create-company">Oluştur</button></div>
+      <div id="admin-requests" class="tab"><div id="requests-list"></div></div>
+      <div id="admin-finance" class="tab"><div id="finance-summary"></div><div id="withdraw-requests"></div></div>
+    </div>
+  </div>
+
+  <div id="modal-register" class="modal" style="display:none">
+    <div class="modal-box">
+      <h3>Hesap Oluştur</h3>
+      <input id="reg-name" placeholder="Borsada görünen ad" />
+      <input id="reg-phone" placeholder="Telefon" />
+      <input id="reg-email" placeholder="E-posta" />
+      <input id="reg-pass" type="password" placeholder="Şifre" />
+      <div class="modal-actions">
+        <button id="reg-submit" class="btn btn-primary">Oluştur</button>
+        <button class="modal-close btn">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-login" class="modal" style="display:none">
+    <div class="modal-box">
+      <h3>Giriş Yap</h3>
+      <input id="log-user" placeholder="Kullanıcı adı" />
+      <input id="log-pass" type="password" placeholder="Şifre" />
+      <a id="link-forgot" href="#">Şifremi unuttum</a>
+      <div class="modal-actions">
+        <button id="log-submit" class="btn btn-primary">Giriş</button>
+        <button class="modal-close btn">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-forgot" class="modal" style="display:none">
+    <div class="modal-box">
+      <h3>Şifremi Unuttum</h3>
+      <input id="fp-email" placeholder="E-posta" />
+      <div class="modal-actions">
+        <button id="fp-submit" class="btn btn-primary">Gönder</button>
+        <button class="modal-close btn">Kapat</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
